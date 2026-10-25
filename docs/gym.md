@@ -2,7 +2,7 @@
 
 The gym lets an agent probe real Microsoft 365 Excel for the web, and later our grid, through one
 MCP API. It runs on a Linux host you own, is published over HTTPS with Tailscale Funnel, and
-redeploys itself from `main`.
+redeploys itself when gym code changes on `main`.
 
 ```
 Claude ──MCP over HTTPS──▶ Tailscale Funnel ──▶ gym container (127.0.0.1:8787)
@@ -46,19 +46,22 @@ These are the only manual steps. After them, every gym change deploys itself.
    `EXCEL_WORKBOOK_URL`.
 
 ### 2. Gym host (your Linux box)
-1. Install Docker and Tailscale; join the box to your tailnet.
-2. Create the secrets file from `gym/deploy/gym.env.example`:
+1. Install Docker and Tailscale, join the box to your tailnet, and add your user to the `docker`
+   group.
+2. Publish the gym port: `sudo tailscale funnel --bg 8787`. Note the
+   `https://<host>.<tailnet>.ts.net` origin it prints.
+3. Create the secrets file from
+   [`gym/deploy/gym.env.example`](../gym/deploy/gym.env.example), readable only by your user:
    ```
-   sudo mkdir -p /etc/rustsheet-gym && sudo cp gym.env.example /etc/rustsheet-gym/gym.env
-   sudo chmod 600 /etc/rustsheet-gym/gym.env   # then fill it in; owned by the runner user
+   sudo mkdir -p /etc/rustsheet-gym
+   sudo install -m 600 -o "$USER" /dev/null /etc/rustsheet-gym/gym.env
+   # fill it in: GYM_TOKEN, GYM_PUBLIC_ORIGIN (the Funnel origin), EXCEL_WORKBOOK_URL, M365_*
    ```
    Values are plain `KEY=value` (no quotes). Do not set `GYM_PORT`.
-3. Publish the live gym: `sudo tailscale funnel --bg 8787`. Put the resulting
-   `https://<host>.<tailnet>.ts.net` in `GYM_PUBLIC_ORIGIN`.
-4. Install a GitHub Actions self-hosted runner for `steveash/rustsheet-grid` (repo Settings →
-   Actions → Runners → New self-hosted runner), add the label `excel-gym`, and run it as a service
-   under a user in the `docker` group that owns `/etc/rustsheet-gym/gym.env`.
-5. First deploy: Actions → **Gym deploy** → Run workflow.
+4. Install the updater, which also runs the first deploy:
+   ```
+   curl -fsSL https://raw.githubusercontent.com/steveash/rustsheet-grid/main/gym/deploy/install.sh | bash
+   ```
 
 ### 3. Bridge add-in (Microsoft 365 admin center)
 1. Download the manifest the gym serves:
@@ -78,7 +81,12 @@ The token in the path is the credential; treat the URL as a secret.
 
 ## Deploys
 
-`.github/workflows/gym-deploy.yml` runs on the host's runner whenever `gym/**` changes on `main`:
+The host pulls; nothing outside it can trigger a deploy. This matters because the repo is public:
+a GitHub self-hosted runner would let fork pull requests run code on the box.
+
+A systemd timer (`rustsheet-gym-updater.timer`, every 5 minutes) runs
+[`updater.sh`](../gym/deploy/updater.sh). When the gym's files on `main` changed since the last
+deploy, it checks them out and runs [`deploy.sh`](../gym/deploy/deploy.sh):
 
 1. Build a new image.
 2. Start it as a **canary** on `127.0.0.1:8788` and run the smoke check (Excel opens, the bridge
@@ -87,9 +95,9 @@ The token in the path is the credential; treat the URL as a secret.
 3. Only if the canary passes: replace the live container on `:8787` and smoke-check it again; if
    that fails, roll back to the previous image automatically.
 
-A failed deploy leaves the live gym unchanged. Manual rollback: run the workflow with
-`rollback: true`. For a human gate, add required reviewers to the `gym` environment in repo
-settings.
+A failed deploy leaves the live gym unchanged, and the same change is not retried until `main`
+moves again. Logs: `journalctl -u rustsheet-gym-updater`. Manual rollback:
+`/opt/rustsheet-grid/gym/deploy/deploy.sh --rollback`.
 
 ## When a human is needed
 - **Sign-in breaks** (password expiry, new consent screen): the smoke check names the step. Fix the

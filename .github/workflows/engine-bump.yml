@@ -17,9 +17,6 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/engine-access
-        with:
-          ssh-key: ${{ secrets.RUSTSHEET_DEPLOY_KEY }}
       - uses: dtolnay/rust-toolchain@1.97
       - id: bump
         run: |

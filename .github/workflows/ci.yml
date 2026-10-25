@@ -61,9 +61,6 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/engine-access
-        with:
-          ssh-key: ${{ secrets.RUSTSHEET_DEPLOY_KEY }}
       - uses: dtolnay/rust-toolchain@1.97
         with:
           components: rustfmt, clippy
@@ -76,9 +73,6 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/engine-access
-        with:
-          ssh-key: ${{ secrets.RUSTSHEET_DEPLOY_KEY }}
       - uses: dtolnay/rust-toolchain@1.97
         with:
           targets: wasm32-unknown-unknown
@@ -110,8 +104,8 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: make check-gym
-      - name: Deploy script parses
-        run: bash -n gym/deploy/deploy.sh
+      - name: Deploy scripts parse
+        run: for f in gym/deploy/*.sh; do bash -n "$f"; done
 
   # One stable check name for branch protection: green when every area that ran passed.
   ci-ok:

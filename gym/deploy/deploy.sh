@@ -2,7 +2,7 @@
 # Deploys the gym on its host: build an image, smoke-test it as a canary beside the running gym,
 # and only then replace the running gym. A failed build or canary leaves the running gym alone.
 #
-# Run by .github/workflows/gym-deploy.yml on the host's self-hosted runner; safe to run by hand.
+# Run by updater.sh (systemd timer) when gym files change on main; safe to run by hand.
 #   gym/deploy/deploy.sh            deploy the current checkout
 #   gym/deploy/deploy.sh --rollback restart the previous image
 set -euo pipefail
