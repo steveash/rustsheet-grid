@@ -1,0 +1,13 @@
+[package]
+name = "grid-server"
+description = "Viewport server: serves render-ready tiles of a rustsheet workbook to the web grid"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[dependencies]
+rustsheet = { workspace = true }
+
+[lints]
+workspace = true

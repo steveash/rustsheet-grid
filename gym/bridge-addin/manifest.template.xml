@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Gym bridge add-in manifest. The gym server serves this file with {{BASE}} replaced by its
+  secret base URL (https://<host>/s/<token>/addin), at {{BASE}}/manifest.xml.
+  Upload that served copy once in the Microsoft 365 admin center (Integrated apps) for the
+  automation accounts. Rotating the gym token means uploading it again.
+-->
+<OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+           xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
+           xsi:type="TaskPaneApp">
+  <Id>6b1d3c2e-8f4a-4e5b-9c7d-2a1f0e9b8d71</Id>
+  <Version>1.0.0.0</Version>
+  <ProviderName>rustsheet-grid</ProviderName>
+  <DefaultLocale>en-US</DefaultLocale>
+  <DisplayName DefaultValue="Gym Bridge"/>
+  <Description DefaultValue="Lets the rustsheet gym set up and read workbook state."/>
+  <SupportUrl DefaultValue="https://github.com/steveash/rustsheet-grid"/>
+  <AppDomains>
+    <AppDomain>{{ORIGIN}}</AppDomain>
+  </AppDomains>
+  <Hosts>
+    <Host Name="Workbook"/>
+  </Hosts>
+  <Requirements>
+    <Sets DefaultMinVersion="1.1">
+      <Set Name="ExcelApi" MinVersion="1.13"/>
+    </Sets>
+  </Requirements>
+  <DefaultSettings>
+    <SourceLocation DefaultValue="{{BASE}}/taskpane.html"/>
+  </DefaultSettings>
+  <Permissions>ReadWriteDocument</Permissions>
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="VersionOverridesV1_0">
+    <Hosts>
+      <Host xsi:type="Workbook">
+        <DesktopFormFactor>
+          <ExtensionPoint xsi:type="PrimaryCommandSurface">
+            <OfficeTab id="TabHome">
+              <Group id="GymGroup">
+                <Label resid="GroupLabel"/>
+                <Icon>
+                  <bt:Image size="16" resid="Icon"/>
+                  <bt:Image size="32" resid="Icon"/>
+                  <bt:Image size="80" resid="Icon"/>
+                </Icon>
+                <Control xsi:type="Button" id="GymButton">
+                  <Label resid="ButtonLabel"/>
+                  <Supertip>
+                    <Title resid="ButtonLabel"/>
+                    <Description resid="ButtonTip"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon"/>
+                    <bt:Image size="32" resid="Icon"/>
+                    <bt:Image size="80" resid="Icon"/>
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <!-- This id lets the workbook reopen the pane automatically (see taskpane.js). -->
+                    <TaskpaneId>Office.AutoShowTaskpaneWithDocument</TaskpaneId>
+                    <SourceLocation resid="TaskpaneUrl"/>
+                  </Action>
+                </Control>
+              </Group>
+            </OfficeTab>
+          </ExtensionPoint>
+        </DesktopFormFactor>
+      </Host>
+    </Hosts>
+    <Resources>
+      <bt:Images>
+        <bt:Image id="Icon" DefaultValue="{{BASE}}/icon.png"/>
+      </bt:Images>
+      <bt:Urls>
+        <bt:Url id="TaskpaneUrl" DefaultValue="{{BASE}}/taskpane.html"/>
+      </bt:Urls>
+      <bt:ShortStrings>
+        <bt:String id="GroupLabel" DefaultValue="Gym"/>
+        <bt:String id="ButtonLabel" DefaultValue="Gym Bridge"/>
+      </bt:ShortStrings>
+      <bt:LongStrings>
+        <bt:String id="ButtonTip" DefaultValue="Open the gym bridge pane."/>
+      </bt:LongStrings>
+    </Resources>
+  </VersionOverrides>
+</OfficeApp>

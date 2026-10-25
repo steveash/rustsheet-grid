@@ -1,0 +1,7 @@
+/target
+node_modules/
+dist/
+*.tsbuildinfo
+.env
+gym/deploy/*.env
+/gym-state/

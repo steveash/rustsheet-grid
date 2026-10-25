@@ -1,0 +1,35 @@
+[workspace]
+resolver = "2"
+members = ["crates/grid-server", "crates/grid-display-wasm"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.88"
+publish = false
+
+[workspace.dependencies]
+# The engine, pinned to one commit. Bumped by .github/workflows/engine-bump.yml.
+# For local work across both repos, add to .cargo/config.toml (never commit it):
+#   [patch."https://github.com/steveash/rustsheet"]
+#   rustsheet = { path = "../rustsheet/crates/rustsheet" }
+#   rustsheet_engine = { path = "../rustsheet/crates/rustsheet-engine" }
+rustsheet = { git = "https://github.com/steveash/rustsheet", rev = "e7b9a2adbcb2db2d664b111f2b8d52c65185f686" }
+rustsheet_engine = { git = "https://github.com/steveash/rustsheet", rev = "e7b9a2adbcb2db2d664b111f2b8d52c65185f686" }
+
+[workspace.lints.rust]
+unsafe_code = "deny"
+unused_must_use = "deny"
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+unwrap_used = "warn"
+expect_used = "warn"
+panic = "warn"
+module_name_repetitions = "allow"
+must_use_candidate = "allow"
+missing_errors_doc = "allow"
+
+[profile.release]
+lto = true
