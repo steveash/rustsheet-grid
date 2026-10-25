@@ -4,6 +4,8 @@ This repo builds an Excel-parity web grid over the rustsheet engine, plus the gy
 parity against real Microsoft 365 Excel. The engine lives in a separate repo
 (`steveash/rustsheet`) and is consumed here as a pinned git dependency.
 
+**New session? Read `docs/handoff.md` first**: goals, decisions, current state and next steps.
+
 ## Prime directives
 1. **Excel is the spec.** Grid behavior (painting, selection, keyboard, conditional formatting) is
    decided by gym evidence from real Excel for the web, never by memory or documentation. Record
