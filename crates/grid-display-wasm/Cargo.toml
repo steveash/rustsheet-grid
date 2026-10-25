@@ -1,0 +1,17 @@
+[package]
+name = "grid-display-wasm"
+description = "rustsheet's number formatting compiled for the browser, so the grid formats width-dependent cells exactly as the server would"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+rustsheet_engine = { workspace = true }
+wasm-bindgen = "0.2"
+
+[lints]
+workspace = true

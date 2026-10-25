@@ -1,0 +1,125 @@
+name: CI
+
+# One workflow, one job per area. The `changes` job decides which areas a PR touches; skipped jobs
+# report success to required checks, so a web-only PR never waits on Rust and vice versa. Pushes
+# to main and manual runs check every area.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  changes:
+    runs-on: ubuntu-24.04
+    outputs:
+      server: ${{ steps.areas.outputs.server }}
+      wasm: ${{ steps.areas.outputs.wasm }}
+      web: ${{ steps.areas.outputs.web }}
+      gym: ${{ steps.areas.outputs.gym }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: areas
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          all() { for a in server wasm web gym; do echo "$a=true" >> "$GITHUB_OUTPUT"; done; }
+          if [ "$EVENT" != "pull_request" ] || [ -z "$BASE" ]; then all; exit 0; fi
+          files=$(git diff --name-only "$BASE" HEAD) || { all; exit 0; }
+          has() { grep -qE "$1" <<<"$files" && echo true || echo false; }
+          # Shared build files touch every area.
+          shared=$(has '^(Cargo\.(toml|lock)|rust-toolchain\.toml|\.cargo/|package\.json|pnpm-(lock|workspace)\.yaml|tsconfig\.base\.json|Makefile|\.github/)')
+          rust=$(has '^crates/')
+          display=$(has '^crates/grid-display-wasm/')
+          web=$(has '^web/')
+          gym=$(has '^gym/')
+          or() { [ "$1" = true ] || [ "$2" = true ] && echo true || echo false; }
+          {
+            echo "server=$(or "$shared" "$rust")"
+            echo "wasm=$(or "$shared" "$display")"
+            # The display crate feeds the web packages, so it runs their checks too.
+            echo "web=$(or "$shared" "$(or "$web" "$display")")"
+            echo "gym=$(or "$shared" "$gym")"
+          } >> "$GITHUB_OUTPUT"
+
+  server:
+    needs: changes
+    if: needs.changes.outputs.server == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/engine-access
+        with:
+          ssh-key: ${{ secrets.RUSTSHEET_DEPLOY_KEY }}
+      - uses: dtolnay/rust-toolchain@1.97
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+      - run: make check-server
+
+  wasm:
+    needs: changes
+    if: needs.changes.outputs.wasm == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/engine-access
+        with:
+          ssh-key: ${{ secrets.RUSTSHEET_DEPLOY_KEY }}
+      - uses: dtolnay/rust-toolchain@1.97
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - run: make check-wasm
+
+  web:
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: make check-web
+
+  gym:
+    needs: changes
+    if: needs.changes.outputs.gym == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: make check-gym
+      - name: Deploy script parses
+        run: bash -n gym/deploy/deploy.sh
+
+  # One stable check name for branch protection: green when every area that ran passed.
+  ci-ok:
+    if: always()
+    needs: [changes, server, wasm, web, gym]
+    runs-on: ubuntu-24.04
+    steps:
+      - run: |
+          for r in "${{ needs.changes.result }}" "${{ needs.server.result }}" "${{ needs.wasm.result }}" "${{ needs.web.result }}" "${{ needs.gym.result }}"; do
+            case "$r" in success|skipped) ;; *) echo "a job ended $r"; exit 1 ;; esac
+          done

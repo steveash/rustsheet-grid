@@ -1,0 +1,4 @@
+[net]
+# Use the git CLI so private-repo credentials (CI deploy key, credential helpers) apply to the
+# rustsheet git dependency.
+git-fetch-with-cli = true
