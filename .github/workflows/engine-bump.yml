@@ -1,0 +1,47 @@
+name: Engine bump
+
+# Nightly: move the rustsheet pin to the engine's current main and open (or update) a PR, so this
+# repo's CI tells us within a day when an engine change breaks the grid. Engine work never waits
+# on this repo.
+on:
+  schedule:
+    - cron: "17 9 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.97
+      - id: bump
+        run: |
+          new=$(git ls-remote https://github.com/steveash/rustsheet refs/heads/main | cut -f1)
+          old=$(grep -oE 'rev = "[0-9a-f]{40}"' Cargo.toml | head -1 | grep -oE '[0-9a-f]{40}')
+          if [ -z "$new" ] || [ "$new" = "$old" ]; then echo "changed=false" >> "$GITHUB_OUTPUT"; exit 0; fi
+          sed -i "s/$old/$new/g" Cargo.toml
+          cargo update -p rustsheet -p rustsheet_engine
+          { echo "changed=true"; echo "old=$old"; echo "new=$new"; } >> "$GITHUB_OUTPUT"
+      # PRs opened with GITHUB_TOKEN do not trigger other workflows, so the engine-dependent
+      # checks run here and their result goes in the PR.
+      - if: steps.bump.outputs.changed == 'true'
+        run: rustup component add rustfmt clippy && rustup target add wasm32-unknown-unknown
+      - if: steps.bump.outputs.changed == 'true'
+        id: checks
+        continue-on-error: true
+        run: make check-server check-wasm
+      - if: steps.bump.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: engine-bump
+          commit-message: "Bump rustsheet engine to ${{ steps.bump.outputs.new }}"
+          title: "Bump rustsheet engine (${{ steps.checks.outcome == 'success' && 'checks pass' || 'CHECKS FAIL' }})"
+          body: |
+            Moves the engine pin from steveash/rustsheet@${{ steps.bump.outputs.old }} to @${{ steps.bump.outputs.new }}.
+            Engine changes: https://github.com/steveash/rustsheet/compare/${{ steps.bump.outputs.old }}...${{ steps.bump.outputs.new }}
+
+            Server and wasm checks against the new engine: **${{ steps.checks.outcome }}** ([run log](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})).

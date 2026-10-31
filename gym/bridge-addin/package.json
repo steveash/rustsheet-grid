@@ -1,0 +1,9 @@
+{
+  "name": "@rustsheet-grid/bridge-addin",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "vitest run"
+  }
+}

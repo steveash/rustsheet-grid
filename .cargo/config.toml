@@ -1,0 +1,3 @@
+[net]
+# Use the git CLI for the rustsheet git dependency, so git's own proxy and credential settings apply.
+git-fetch-with-cli = true
