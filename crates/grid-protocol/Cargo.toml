@@ -1,0 +1,13 @@
+[package]
+name = "grid-protocol"
+description = "The viewport protocol between grid-server and the web grid: message types and the binary codec (docs/protocol.md)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+# No dependencies on purpose: the same codec compiles to wasm32 for the browser.
+[dependencies]
+
+[lints]
+workspace = true

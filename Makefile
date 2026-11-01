@@ -10,8 +10,8 @@ check-server: ## Rust: fmt, clippy -D warnings, tests
 	cargo clippy --workspace --all-targets -- -D warnings
 	cargo test --workspace
 
-check-wasm: ## Build the display crate for the browser (wasm32)
-	cargo build -p grid-display-wasm --target wasm32-unknown-unknown --release
+check-wasm: ## Build the browser crates (display, protocol codec) for wasm32
+	cargo build -p grid-display-wasm -p grid-protocol --target wasm32-unknown-unknown --release
 
 # ---------------------------------------------------------------- TypeScript (web, gym)
 node_modules: package.json pnpm-lock.yaml

@@ -84,9 +84,9 @@ merge PR #1, allow Actions to create PRs, create the M365 automation user (TOTP 
    probe, and `excel_observe`; fix what breaks. Gate: same screenshot and readback 5 runs in a row.
 2. **Scrolled views:** calibration assumes A1 at the top-left; detect the scroll origin so
    `excel_act`/`excel_observe` work after Ctrl+Arrow and scrolling.
-3. **Viewport protocol spec** (`docs/protocol.md`): subscribe/tile/patch/edit/geometry messages,
-   binary encoding, epochs, style interning (plan doc, "Architecture: Viewport protocol").
-   Types defined once in Rust, TypeScript generated.
+3. **Viewport protocol**: spec written (`docs/protocol.md`, v1.0 draft) and implemented as
+   `crates/grid-protocol` (types + codec, tested). Next: export the codec to the browser via WASM
+   with generated TypeScript types, then the WebSocket server that speaks it.
 4. **Engine tasks in rustsheet** (via its `planner` agent / task process, not edited from here):
    styles and resolved CF per cell through the public facade; CF evaluated for a requested range;
    width-aware General display; >1,048,576 rows spec.

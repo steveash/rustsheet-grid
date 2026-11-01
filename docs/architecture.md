@@ -18,9 +18,12 @@ Built so far:
 - `grid-display-wasm::formatNumber`: the engine's number formatter, for the browser.
 - `grid-core::AxisGeometry`: row/column pixel geometry with sparse overrides; O(log k) both ways,
   independent of axis length (1B rows cost the same as 100).
+- `grid-protocol`: the viewport protocol's message types and binary codec, specified in
+  `docs/protocol.md`. No dependencies, so it also builds for wasm32: the browser will run this
+  same codec rather than a TypeScript copy.
 
-Next: the WebSocket protocol (subscribe, tile, patch, edit), styles and conditional formatting in
-tiles, and the canvas renderer.
+Next: expose the codec to TypeScript through WASM (generated types), the WebSocket server over
+`grid-server`, and the renderer.
 
 ## Engine APIs the grid will need (to file in rustsheet)
 - Styles and resolved conditional formatting per cell, through the public facade.

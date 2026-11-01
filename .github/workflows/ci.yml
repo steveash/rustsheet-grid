@@ -43,14 +43,15 @@ jobs:
           # Shared build files touch every area.
           shared=$(has '^(Cargo\.(toml|lock)|rust-toolchain\.toml|\.cargo/|package\.json|pnpm-(lock|workspace)\.yaml|tsconfig\.base\.json|Makefile|\.github/)')
           rust=$(has '^crates/')
-          display=$(has '^crates/grid-display-wasm/')
+          # Crates that compile to wasm32 for the browser.
+          display=$(has '^crates/(grid-display-wasm|grid-protocol)/')
           web=$(has '^web/')
           gym=$(has '^gym/')
           or() { [ "$1" = true ] || [ "$2" = true ] && echo true || echo false; }
           {
             echo "server=$(or "$shared" "$rust")"
             echo "wasm=$(or "$shared" "$display")"
-            # The display crate feeds the web packages, so it runs their checks too.
+            # The browser crates feed the web packages, so they run their checks too.
             echo "web=$(or "$shared" "$(or "$web" "$display")")"
             echo "gym=$(or "$shared" "$gym")"
           } >> "$GITHUB_OUTPUT"
