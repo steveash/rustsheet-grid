@@ -14,8 +14,8 @@ publish = false
 #   [patch."https://github.com/steveash/rustsheet"]
 #   rustsheet = { path = "../rustsheet/crates/rustsheet" }
 #   rustsheet_engine = { path = "../rustsheet/crates/rustsheet-engine" }
-rustsheet = { git = "https://github.com/steveash/rustsheet", rev = "e7b9a2adbcb2db2d664b111f2b8d52c65185f686" }
-rustsheet_engine = { git = "https://github.com/steveash/rustsheet", rev = "e7b9a2adbcb2db2d664b111f2b8d52c65185f686" }
+rustsheet = { git = "https://github.com/steveash/rustsheet", rev = "79d5c5aa93cefe3bcc048e56378ea050642a9e51" }
+rustsheet_engine = { git = "https://github.com/steveash/rustsheet", rev = "79d5c5aa93cefe3bcc048e56378ea050642a9e51" }
 
 [workspace.lints.rust]
 unsafe_code = "deny"
