@@ -474,18 +474,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "regex"
-version = "1.13.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f020237b6c8eed93db2e2cb53c00c60a8e1bc73da7d073199a1180401450218d"
-dependencies = [
- "aho-corasick",
- "memchr",
- "regex-automata",
- "regex-syntax",
-]
-
-[[package]]
 name = "regex-automata"
 version = "0.4.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -497,12 +485,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "regex-lite"
-version = "0.1.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cab834c73d247e67f4fae452806d17d3c7501756d98c8808d7c9c7aa7d18f973"
-
-[[package]]
 name = "regex-syntax"
 version = "0.8.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -511,7 +493,7 @@ checksum = "d6f6ff9a378485b298a5286656da665ba74413d36db0979633275d2e708145d4"
 [[package]]
 name = "rustsheet"
 version = "0.1.0"
-source = "git+https://github.com/steveash/rustsheet?rev=e7b9a2adbcb2db2d664b111f2b8d52c65185f686#e7b9a2adbcb2db2d664b111f2b8d52c65185f686"
+source = "git+https://github.com/steveash/rustsheet?rev=79d5c5aa93cefe3bcc048e56378ea050642a9e51#79d5c5aa93cefe3bcc048e56378ea050642a9e51"
 dependencies = [
  "rustsheet_engine",
  "rustsheet_xlsx",
@@ -521,7 +503,7 @@ dependencies = [
 [[package]]
 name = "rustsheet_engine"
 version = "0.1.0"
-source = "git+https://github.com/steveash/rustsheet?rev=e7b9a2adbcb2db2d664b111f2b8d52c65185f686#e7b9a2adbcb2db2d664b111f2b8d52c65185f686"
+source = "git+https://github.com/steveash/rustsheet?rev=79d5c5aa93cefe3bcc048e56378ea050642a9e51#79d5c5aa93cefe3bcc048e56378ea050642a9e51"
 dependencies = [
  "bitcode",
  "chrono",
@@ -531,9 +513,7 @@ dependencies = [
  "libm",
  "memchr",
  "rand",
- "regex",
  "regex-automata",
- "regex-lite",
  "regex-syntax",
  "ryu",
  "serde",
@@ -545,7 +525,7 @@ dependencies = [
 [[package]]
 name = "rustsheet_xlsx"
 version = "0.1.0"
-source = "git+https://github.com/steveash/rustsheet?rev=e7b9a2adbcb2db2d664b111f2b8d52c65185f686#e7b9a2adbcb2db2d664b111f2b8d52c65185f686"
+source = "git+https://github.com/steveash/rustsheet?rev=79d5c5aa93cefe3bcc048e56378ea050642a9e51#79d5c5aa93cefe3bcc048e56378ea050642a9e51"
 dependencies = [
  "bitcode",
  "chrono",
